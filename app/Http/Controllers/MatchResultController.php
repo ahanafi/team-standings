@@ -51,9 +51,30 @@ class MatchResultController extends Controller
         }
 
         try {
+            $homeTeam = $request->get('home_team');
+            $awayTeam = $request->get('away_team');
+
+            $matchResultCount = MatchResult::where('home_team', $homeTeam)
+                ->where('away_team', $awayTeam)
+                ->count();
+
+            if ($matchResultCount !== 0) {
+                $homeTeam = Team::where('id', $homeTeam)->first();
+                $awayTeam = Team::where('id', $awayTeam)->first();
+
+                $macthTeam = '[' . $homeTeam->name . ' vs ' . $awayTeam->name . ']';
+
+                return $this->sendJsonResponse(
+                    isError: true,
+                    data: $request,
+                    message: 'The match result ' . $macthTeam . ' already exists in the database!',
+                    statusCode: 403
+                );
+            }
+
             $matchResult = new MatchResult();
-            $matchResult->home_team = $request->get('home_team');
-            $matchResult->away_team = $request->get('away_team');
+            $matchResult->home_team = $homeTeam;
+            $matchResult->away_team = $awayTeam;
             $matchResult->home_score = $request->get('home_score');
             $matchResult->away_score = $request->get('away_score');
 
@@ -106,7 +127,7 @@ class MatchResultController extends Controller
                     ->where('away_team', $result['away_team'])
                     ->count();
 
-                if ($otherMatchCount != 0) {
+                if ($otherMatchCount !== 0) {
                     $homeTeam = Team::where('id', $result['home_team'])->first();
                     $awayTeam = Team::where('id', $result['away_team'])->first();
 
@@ -115,7 +136,7 @@ class MatchResultController extends Controller
                     return $this->sendJsonResponse(
                         isError: true,
                         data: $request,
-                        message: 'Match result ' . $macthTeam . ' already exist on the database!',
+                        message: 'The match result ' . $macthTeam . ' already exists in the database!',
                         statusCode: 403
                     );
                     break;
