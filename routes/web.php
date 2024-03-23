@@ -10,6 +10,7 @@ Route::get('/', function () {
 
 
 Route::get('/teams', [TeamController::class, 'index'])->name('teams.index');
+Route::get('/teams/standings-table', [TeamController::class, 'standingsTable'])->name('teams.standings-table');
 
 Route::group([
     'prefix' => 'match-result',

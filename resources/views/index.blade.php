@@ -63,7 +63,7 @@
                         <li>Phone and email support</li>
                         <li>Help center access</li>
                     </ul>
-                    <button type="button" class="w-100 btn btn-lg btn-primary">View Team Standings</button>
+                    <a href="{{ route('teams.standings-table') }}" class="w-100 btn btn-lg btn-primary">View Team Standings</a>
                 </div>
             </div>
         </div>

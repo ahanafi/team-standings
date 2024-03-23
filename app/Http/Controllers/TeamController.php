@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\TeamsDataTable;
+use App\DataTables\TeamStandingsDataTable;
 use App\Models\Team;
 use App\Traits\JsonResponseTrait;
 use Exception;
@@ -20,6 +21,11 @@ class TeamController extends Controller
     public function index(TeamsDataTable $teamsDataTable)
     {
         return $teamsDataTable->render('teams.index');
+    }
+
+    public function standingsTable(TeamStandingsDataTable $teamStandingsTable)
+    {
+        return $teamStandingsTable->render('teams.standings-table');
     }
 
     public function ajaxGetAllTeams(Request $request)
