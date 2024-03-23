@@ -54,9 +54,14 @@ class TeamsDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id'),
-            Column::make('name'),
-            Column::make('city'),
+            Column::make('row_number')
+                ->title('#')
+                ->render('meta.row + meta.settings._iDisplayStart + 1;')
+                ->width(50)
+                ->orderable(false)
+                ->searchable(false),
+            Column::make('name')->title('Team Name')->addClass('text-start'),
+            Column::make('city')->title('City')->addClass('text-start'),
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\MatchResultsDataTable;
 use App\Models\MatchResult;
 use App\Models\Team;
 use App\Traits\JsonResponseTrait;
@@ -13,6 +14,11 @@ use Illuminate\Support\Facades\Validator;
 class MatchResultController extends Controller
 {
     use JsonResponseTrait;
+
+    public function index(MatchResultsDataTable $dataTable)
+    {
+        return $dataTable->render('match-result.index');
+    }
 
     /**
      * Display a listing of the resource.

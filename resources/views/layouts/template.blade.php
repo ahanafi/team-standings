@@ -81,7 +81,7 @@
 
                 <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
                     <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{{ route('teams.index') }}">Team Lists</a>
-                    <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{{ route('match-result.input-multiple-result') }}">Input Match Result</a>
+                    <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{{ route('match-result.list') }}">View Match Result</a>
                     <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{{ route('teams.standings-table') }}">Team Tables</a>
                 </nav>
             </div>

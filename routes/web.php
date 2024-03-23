@@ -17,7 +17,9 @@ Route::group([
     'as' => 'match-result.'
 ], function () {
 
+    Route::get('/list', [MatchResultController::class, 'index'])->name('list');
     Route::get('input-multiple-result', [MatchResultController::class, 'showForm'])->name('input-multiple-result');
+
 });
 
 // Ajax routes

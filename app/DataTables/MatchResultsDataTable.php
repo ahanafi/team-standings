@@ -2,14 +2,14 @@
 
 namespace App\DataTables;
 
-use App\Models\Team;
+use App\Models\MatchResult;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class TeamStandingsDataTable extends DataTable
+class MatchResultsDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -25,13 +25,25 @@ class TeamStandingsDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(Team $model): QueryBuilder
+    public function query(MatchResult $model): QueryBuilder
     {
-        return $model->newQuery()
-            ->select('id', 'name', 'played', 'won', 'drawn', 'lost', 'goal_for', 'goal_against', 'points')
-            ->orderBy('points', 'DESC')
-            ->orderBy('goal_for', 'DESC')
-            ->orderBy('goal_against', 'ASC');
+        $query = $model->newQuery()
+            ->with(['homeTeam', 'awayTeam'])
+            ->latest('match_results.created_at');
+
+        if (request()->filled('search') && request('search')['value'] !== '') {
+            $value = request('search')['value'];
+
+            $query = $query->whereHas('homeTeam', function ($q) use ($value) {
+                return $q->where('name', 'LIKE', "%" . $value . "%");
+            })
+            ->orWhereHas('awayTeam', function ($q) use ($value) {
+                return $q->where('name', 'LIKE', "%" . $value . "%");
+            });
+        }
+
+        return $query;
+
     }
 
     /**
@@ -40,10 +52,10 @@ class TeamStandingsDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('team-standings-table')
+                    ->setTableId('match-results-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->orderBy(1)
+                    ->orderBy(0)
                     ->selectStyleSingle();
     }
 
@@ -59,14 +71,16 @@ class TeamStandingsDataTable extends DataTable
                 ->width(50)
                 ->orderable(false)
                 ->searchable(false),
-            Column::make('name')->title('Team Name')->addClass('text-start'),
-            Column::make('played'),
-            Column::make('won'),
-            Column::make('drawn'),
-            Column::make('lost'),
-            Column::make('goal_for'),
-            Column::make('goal_against'),
-            Column::make('points'),
+            Column::make('home_team.name')
+                ->title('Home Team')
+                ->addClass('text-start'),
+            Column::make('away_team.name')
+                ->title('Away Team')
+                ->addClass('text-start'),
+            Column::make('home_score')->searchable(false),
+            Column::make('away_score')->searchable(false),
+            Column::make('created_at')->searchable(false),
+            Column::make('updated_at')->searchable(false),
         ];
     }
 
@@ -75,6 +89,6 @@ class TeamStandingsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'TeamStandings_' . date('YmdHis');
+        return 'MatchResults_' . date('YmdHis');
     }
 }
