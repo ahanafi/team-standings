@@ -37,8 +37,8 @@ class MatchResultObserver
             $homeTeamPoint = 1;
             $awayTeamPoint = 1;
 
-            $homeTeamDrawn = 0;
-            $awayTeamDrawn = 0;
+            $homeTeamDrawn = 1;
+            $awayTeamDrawn = 1;
         } else if ($matchResult->the_winner === 'HOME') {
             $homeTeamPoint = 3;
             $awayTeamPoint = 0;

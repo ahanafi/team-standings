@@ -238,21 +238,14 @@
                     },
                     success: (response, textStatus, xhr) => {
                         if (xhr.status === 200) {
-                            resetForm('team');
-                            btnCloseTeamForm.click();
-
-                            showAlert('success', response.message, 3000);
+                            showAlert('success', response.message, 3000, () => {
+                                window.location.href = '{{ route('teams.standings-table') }}';
+                            });
                         } else {
                             showAlert('error', xhr.responseJSON.message, 3000);
                         }
                     },
-                    error: (xhr, textStatus, err) => showAlert('error', xhr.responseJSON.message, 3000),
-                    done: () => {
-                        resetForm('team');
-                        btnCloseTeamForm.click();
-
-                        hideModalForm('team-form-modal');
-                    }
+                    error: (xhr, textStatus, err) => showAlert('error', xhr.responseJSON.message, 3000)
                 })
             }
         }

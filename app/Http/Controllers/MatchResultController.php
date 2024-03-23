@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MatchResult;
+use App\Models\Team;
 use App\Traits\JsonResponseTrait;
 use Exception;
 use Illuminate\Http\Request;
@@ -92,21 +93,34 @@ class MatchResultController extends Controller
             $results = $request->get('results');
             $matchResultData = [];
 
-            foreach ($results as $key => $result) {
+            foreach ($results as $result) {
                 $otherMatchCount = MatchResult::where('home_team', $result['home_team'])
                     ->where('away_team', $result['away_team'])
                     ->count();
 
-                if ($otherMatchCount == 0) {
-                    $theWinner = $result['home_score'] > $result['away_score']
-                        ? 'HOME'
-                        : ($result['home_score'] < $result['away_score'] ? 'AWAY' : null);
-                    $result['the_winner'] = $theWinner;
-                    $matchResultData[] = $result;
-                }
-            }
+                if ($otherMatchCount != 0) {
+                    $homeTeam = Team::where('id', $result['home_team'])->first();
+                    $awayTeam = Team::where('id', $result['away_team'])->first();
 
-            MatchResult::insert($matchResultData);
+                    $macthTeam = '[' . $homeTeam->name . ' vs ' . $awayTeam->name . ']';
+
+                    return $this->sendJsonResponse(
+                        isError: true,
+                        data: $request,
+                        message: 'Match result ' . $macthTeam . ' already exist on the database!',
+                        statusCode: 403
+                    );
+                    break;
+                }
+
+                $theWinner = $result['home_score'] > $result['away_score']
+                    ? 'HOME'
+                    : ($result['home_score'] < $result['away_score'] ? 'AWAY' : null);
+                $result['the_winner'] = $theWinner;
+                $matchResultData[] = $result;
+
+                MatchResult::create($result);
+            }
 
             return $this->sendJsonResponse(data: ['result' => $matchResultData], message: 'Match result was successfully saved!');
         } catch (Exception $ex) {
