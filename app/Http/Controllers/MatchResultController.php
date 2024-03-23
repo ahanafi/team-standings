@@ -16,9 +16,9 @@ class MatchResultController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function showForm()
     {
-        //
+        return view('match-result.form-multiple');
     }
 
     /**
@@ -64,6 +64,51 @@ class MatchResultController extends Controller
             $matchResult->save();
 
             return $this->sendJsonResponse(data: ['result' => $matchResult], message: 'Match result was successfully saved!');
+        } catch (Exception $ex) {
+            Log::error('MatchResultController (store) error: ' . $ex->getMessage() . ' line: ' . $ex->getLine());
+            Log::error('MatchResultController (store) exception: ' . $ex->getTraceAsString());
+
+            return $this->sendJsonResponse(true, message: 'Server Error', statusCode: 500);
+        }
+    }
+
+    public function storeMultiple(Request $request)
+    {
+        if (!$request->ajax()) {
+            return $this->sendResourceNotFound();
+        }
+
+        $validate = Validator::make($request->all(), [
+            'results' => 'required|array',
+            'results.*.home_team' => 'required|exists:teams,id|distinct',
+            'results.*.away_team' => 'required|exists:teams,id|distinct',
+        ]);
+
+        if ($validate->fails()) {
+            return $this->sendJsonResponse(true, null, $validate->getMessageBag()->first(), 400);
+        }
+
+        try {
+            $results = $request->get('results');
+            $matchResultData = [];
+
+            foreach ($results as $key => $result) {
+                $otherMatchCount = MatchResult::where('home_team', $result['home_team'])
+                    ->where('away_team', $result['away_team'])
+                    ->count();
+
+                if ($otherMatchCount == 0) {
+                    $theWinner = $result['home_score'] > $result['away_score']
+                        ? 'HOME'
+                        : ($result['home_score'] < $result['away_score'] ? 'AWAY' : null);
+                    $result['the_winner'] = $theWinner;
+                    $matchResultData[] = $result;
+                }
+            }
+
+            MatchResult::insert($matchResultData);
+
+            return $this->sendJsonResponse(data: ['result' => $matchResultData], message: 'Match result was successfully saved!');
         } catch (Exception $ex) {
             Log::error('MatchResultController (store) error: ' . $ex->getMessage() . ' line: ' . $ex->getLine());
             Log::error('MatchResultController (store) exception: ' . $ex->getTraceAsString());

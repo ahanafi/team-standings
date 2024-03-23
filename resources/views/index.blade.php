@@ -45,7 +45,7 @@
                     </ul>
                     <div class="d-flex flex-column gap-3">
                         <button id="btn-input-single-match-result" type="button" class="w-100 btn btn-lg btn-outline-primary">Input Single Match Result</button>
-                        <button type="button" class="w-100 btn btn-lg btn-primary">Input Multiple Match Result</button>
+                        <a href="{{ route('match-result.input-multiple-result') }}" class="w-100 btn btn-lg btn-primary">Input Multiple Match Result</a>
                     </div>
                 </div>
             </div>

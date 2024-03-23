@@ -11,6 +11,13 @@ Route::get('/', function () {
 
 Route::get('/teams', [TeamController::class, 'index'])->name('teams.index');
 
+Route::group([
+    'prefix' => 'match-result',
+    'as' => 'match-result.'
+], function () {
+
+    Route::get('input-multiple-result', [MatchResultController::class, 'showForm'])->name('input-multiple-result');
+});
 
 // Ajax routes
 Route::group([
@@ -26,5 +33,7 @@ Route::group([
         'as' => 'match-result.'
     ], function () {
         Route::post('save-result', [MatchResultController::class, 'store'])->name('save-result');
+        Route::post('save-multiple-result', [MatchResultController::class, 'storeMultiple'])->name('save-multiple-result');
+
     });
 });
