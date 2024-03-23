@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Team;
+use App\Traits\JsonResponseTrait;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class TeamController extends Controller
 {
+    use JsonResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return view('teams.index');
     }
 
     /**
@@ -28,7 +34,33 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if (!$request->ajax()) {
+            return $this->sendResourceNotFound();
+        }
+
+        $validate = Validator::make($request->all(), [
+            'name' => 'required|unique:teams,name',
+            'city' => 'required'
+        ]);
+
+        if ($validate->fails()) {
+            return $this->sendJsonResponse(true, null, $validate->getMessageBag()->first(), 400);
+        }
+
+        try {
+            $team = new Team();
+            $team->name = $request->get('name');
+            $team->city = $request->get('city');
+
+            $team->save();
+
+            return $this->sendJsonResponse(data: ['team' => $team]);
+        } catch (Exception $ex) {
+            Log::error('TeamController (store) error: ' . $ex->getMessage() . ' line: ' . $ex->getLine());
+            Log::error('TeamController (store) exception: ' . $ex->getTraceAsString());
+
+            return $this->sendJsonResponse(true, message: 'Server Error', statusCode: 500);
+        }
     }
 
     /**
