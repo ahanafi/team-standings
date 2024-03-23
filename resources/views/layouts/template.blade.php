@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Bootstrap demo</title>
+    <title>Team Standings</title>
     {{-- Toastify --}}
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     @vite(['resources/js/app.js', 'resources/css/app.scss'])
@@ -80,7 +80,7 @@
                 </a>
 
                 <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-                    <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="#">Add Team</a>
+                    <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{{ route('teams.index') }}">Team Lists</a>
                     <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="#">Input Match Result</a>
                     <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="#">Team Tables</a>
                 </nav>

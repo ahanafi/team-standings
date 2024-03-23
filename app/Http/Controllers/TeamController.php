@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\TeamsDataTable;
 use App\Models\Team;
 use App\Traits\JsonResponseTrait;
 use Exception;
@@ -16,9 +17,9 @@ class TeamController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(TeamsDataTable $teamsDataTable)
     {
-        return view('teams.index');
+        return $teamsDataTable->render('teams.index');
     }
 
     /**
