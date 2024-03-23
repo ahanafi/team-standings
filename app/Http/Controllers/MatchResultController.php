@@ -83,6 +83,14 @@ class MatchResultController extends Controller
             'results' => 'required|array',
             'results.*.home_team' => 'required|exists:teams,id|distinct',
             'results.*.away_team' => 'required|exists:teams,id|distinct',
+        ], [
+            // Home team
+            'results.*.home_team.required' => 'Home team is required at row number :position!',
+            'results.*.home_team.distinct' => 'Home team cannot be the be the same as home team in other rows.!',
+
+            // Away team
+            'results.*.away_team.required' => 'Away team is required at row number :position!',
+            'results.*.away_team.distinct' => 'Away team cannot be the same as away team in other rows!',
         ]);
 
         if ($validate->fails()) {
