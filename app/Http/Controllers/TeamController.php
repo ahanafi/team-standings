@@ -22,6 +22,24 @@ class TeamController extends Controller
         return $teamsDataTable->render('teams.index');
     }
 
+    public function ajaxGetAllTeams(Request $request)
+    {
+        if (!$request->ajax()) {
+            return $this->sendResourceNotFound();
+        }
+
+        $teamQuery = Team::query()
+            ->select('id', 'name');
+
+        $teamQuery->when($request->has('exclude'), function ($query) use ($request) {
+            $query->where('teams.id', '!=', $request->get('exclude'));
+        });
+
+        $teamResult = $teamQuery->get();
+
+        return $this->sendJsonResponse(data: ['teams' => $teamResult]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

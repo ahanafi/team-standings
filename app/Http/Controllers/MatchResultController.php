@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\MatchResult;
+use App\Traits\JsonResponseTrait;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class MatchResultController extends Controller
 {
+    use JsonResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -28,7 +34,42 @@ class MatchResultController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if (!$request->ajax()) {
+            return $this->sendResourceNotFound();
+        }
+
+        $validate = Validator::make($request->all(), [
+            'home_team' => 'required|exists:teams,id',
+            'away_team' => 'required|exists:teams,id|not_in:' . $request->get('home_team'),
+            'home_score' => 'required|numeric',
+            'away_score' => 'required|numeric',
+        ]);
+
+        if ($validate->fails()) {
+            return $this->sendJsonResponse(true, null, $validate->getMessageBag()->first(), 400);
+        }
+
+        try {
+            $matchResult = new MatchResult();
+            $matchResult->home_team = $request->get('home_team');
+            $matchResult->away_team = $request->get('away_team');
+            $matchResult->home_score = $request->get('home_score');
+            $matchResult->away_score = $request->get('away_score');
+
+            $theWinner = $request->get('home_score') > $request->get('away_score')
+                ? 'HOME'
+                : ($request->get('home_score') < $request->get('away_score') ? 'AWAY' : null);
+
+            $matchResult->the_winner = $theWinner;
+            $matchResult->save();
+
+            return $this->sendJsonResponse(data: ['result' => $matchResult], message: 'Match result was successfully saved!');
+        } catch (Exception $ex) {
+            Log::error('MatchResultController (store) error: ' . $ex->getMessage() . ' line: ' . $ex->getLine());
+            Log::error('MatchResultController (store) exception: ' . $ex->getTraceAsString());
+
+            return $this->sendJsonResponse(true, message: 'Server Error', statusCode: 500);
+        }
     }
 
     /**

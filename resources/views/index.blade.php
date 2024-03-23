@@ -22,7 +22,11 @@
                         <li>Email support</li>
                         <li>Help center access</li>
                     </ul>
-                    <button type="button" data-bs-toggle="modal" data-bs-target="#team-form-modal" class="w-100 btn btn-lg btn-outline-primary">Input a Team</button>
+                    <div class="d-flex flex-column gap-3">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#team-form-modal" class="w-100 btn btn-lg btn-outline-primary">Input a Team</button>
+                        <a href="{{ route('teams.index') }}" class="w-100 btn btn-lg btn-primary">View Team Lists</a>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -39,7 +43,10 @@
                         <li>Priority email support</li>
                         <li>Help center access</li>
                     </ul>
-                    <button type="button" class="w-100 btn btn-lg btn-primary">Input Match Result</button>
+                    <div class="d-flex flex-column gap-3">
+                        <button id="btn-input-single-match-result" type="button" class="w-100 btn btn-lg btn-outline-primary">Input Single Match Result</button>
+                        <button type="button" class="w-100 btn btn-lg btn-primary">Input Multiple Match Result</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -82,7 +89,7 @@
                     </div>
                 </div>
                 <div class="modal-footer d-flex flex-row justify-content-between">
-                    <button type="button" id="btn-clos-team-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="btn-close-team-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" id="btn-save-team" class="btn btn-primary">Save Team</button>
                 </div>
             </div>
@@ -90,11 +97,56 @@
     </div>
 
 
-    {{-- Modal match results form --}}
+    {{-- Modal single match results form --}}
+    <div class="modal fade" id="single-match-result-form-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="single-match-result-form-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="single-match-result-form-modal-label">Input Match Result</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <label for="home-team" class="col-form-label">Home Team:</label>
+                                <select class="form-select" id="home-team">
+                                    <option disabled value="0" selected>-- Choose home team --</option>
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <label for="home-score" class="col-form-label">Score:</label>
+                                <input type="number" value="0" min="0" max="99" minlength="1" maxlength="2" class="form-control" id="home-score">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <label for="away-team" class="col-form-label">Away Team:</label>
+                                <select class="form-select" id="away-team">
+                                    <option disabled value="0" selected>-- Choose away team --</option>
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <label for="away-score" class="col-form-label">Score:</label>
+                                <input type="number" value="0" min="0" max="99" minlength="1" maxlength="2" class="form-control" id="away-score">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex flex-row justify-content-between">
+                    <button type="button" id="btn-close-match-result-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="btn-save-match-result" class="btn btn-primary">Save Match Result</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('script')
-    <script type="text/javascript">
+    <script type="module">
         //** Elements
 
         // Team
@@ -103,8 +155,34 @@
         const btnSaveTeam = $('#btn-save-team');
         const btnCloseTeamForm = $('#btn-close-team-form');
 
+        // Match result
+        const btnInputSingleMatchResult = $('#btn-input-single-match-result');
+        const matchResultFormModal = new bootstrap.Modal('#single-match-result-form-modal');
+        const homeTeamSelection = $('#home-team');
+        const awayTeamSelection = $('#away-team');
+        const homeTeamScore = $('#home-score');
+        const awayTeamScore = $('#away-score');
+        const btnSaveMatchResult = $('#btn-save-match-result');
+
         // Event List
         btnSaveTeam.on('click', saveTeam)
+
+        btnInputSingleMatchResult.on('click', () => {
+            getAllTeams();
+            matchResultFormModal.show();
+        });
+
+        homeTeamSelection.on('change', function() {
+            const selectedHomeTeam = $(this).val();
+            if (selectedHomeTeam !== '') {
+                getAllTeams(selectedHomeTeam);
+            }
+
+            const awayTeamContainer = $('#away-team');
+            awayTeamContainer.children('option').not('option:first').remove();
+        });
+
+        btnSaveMatchResult.on('click', saveMatchResult)
 
         // Function Lists
         function resetForm(formType) {
@@ -145,6 +223,8 @@
                     success: (response, textStatus, xhr) => {
                         if (xhr.status === 200) {
                             resetForm('team');
+                            btnCloseTeamForm.click();
+
                             showAlert('success', 'A new team was sucessfully added!', 3000, () => {
                                 window.location.href = '{{ route('teams.index') }}';
                             });
@@ -155,12 +235,93 @@
                     error: (xhr, textStatus, err) => showAlert('error', xhr.responseJSON.message, 3000),
                     done: () => {
                         resetForm('team');
+                        btnCloseTeamForm.click();
+
                         hideModalForm('team-form-modal');
                     }
                 });
             }
         }
 
+        function getAllTeams(exclude = null) {
+            const data = {};
+
+            if (exclude !== null) {
+                data['exclude'] = exclude;
+            }
+
+            $.ajax({
+                url: '{{ route('ajax.teams.get-all-teams') }}',
+                data: data,
+                success: (response, textStatus, xhr) => {
+                    if (xhr.status === 200) {
+                        let teamItem = ``;
+                        $.each(response.data.teams, (key, team) => {
+                            teamItem += `<option value="${team.id}">${team.name}</option>`;
+                        });
+
+                        if (exclude !== null) {
+                            const awayTeamContainer = $('#away-team');
+                            awayTeamContainer.children('option').not('option:first').remove();
+                            awayTeamContainer.append(teamItem);
+                        } else {
+                            const homeTeamContainer = $('#home-team');
+                            homeTeamContainer.children('option').not('option:first').remove();
+                            homeTeamContainer.append(teamItem);
+                        }
+                    }
+                }
+            })
+        }
+
+        function validateMatchResultForm() {
+            if (homeTeamSelection.val() === '' || homeTeamSelection.val() === null || homeTeamSelection.val() === 0) {
+                showAlert('error', 'Please choose the home team first!');
+                homeTeamSelection.focus();
+                return false;
+            }
+
+            if (awayTeamSelection.val() === '' || awayTeamSelection.val() === null || awayTeamSelection.val() === 0) {
+                showAlert('error', 'Please choose the home away first!');
+                awayTeamSelection.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        function saveMatchResult() {
+            if (validateMatchResultForm()) {
+                $.ajax({
+                    method: 'POST',
+                    url: '{{ route('ajax.match-result.save-result') }}',
+                    data: {
+                        'home_team': homeTeamSelection.val(),
+                        'away_team': awayTeamSelection.val(),
+                        'home_score': homeTeamScore.val(),
+                        'away_score': awayTeamScore.val(),
+                        '_token': getToken()
+                    },
+                    success: (response, textStatus, xhr) => {
+                        if (xhr.status === 200) {
+                            resetForm('team');
+                            btnCloseTeamForm.click();
+
+                            showAlert('success', response.message, 3000);
+                        } else {
+                            showAlert('error', xhr.responseJSON.message, 3000);
+                        }
+                    },
+                    error: (xhr, textStatus, err) => showAlert('error', xhr.responseJSON.message, 3000),
+                    done: () => {
+                        resetForm('team');
+                        btnCloseTeamForm.click();
+
+                        hideModalForm('team-form-modal');
+                    }
+                })
+            }
+        }
 
 
 

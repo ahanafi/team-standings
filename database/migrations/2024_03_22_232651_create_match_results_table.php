@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('away_team')->references('id')->on('teams');
             $table->integer('home_score')->default(0);
             $table->integer('away_score')->default(0);
-            $table->string('the_winner')->default(null);
+            $table->string('the_winner')->default(null)->nullable();
             $table->timestamps();
         });
     }
