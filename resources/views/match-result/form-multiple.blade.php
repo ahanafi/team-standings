@@ -34,7 +34,7 @@
                                 <!-- Home team -->
                                 <div class="col-3 text-start">
                                     <label for="home-team" class="col-form-label">Home Team:</label>
-                                    <select class="form-select home-teams" id="home-team" data-index="1">
+                                    <select onchange="selectHomeTeam(this)" class="form-select home-teams" id="home-team" data-index="1">
                                         <option disabled value="0" selected>-- Choose home team --</option>
                                     </select>
                                 </div>
@@ -79,7 +79,7 @@
 @endsection
 
 @push('script')
-    <script type="module">
+    <script type="text/javascript">
         //** Elements
         let counter = 1;
 
@@ -103,9 +103,10 @@
         btnAddMatchRow.on('click', addRowMatchResultForm);
         btnRemoveMatchRow.on('click', removeLastRowMatchResultForm);
 
-        homeTeamSelection.on('change', function() {
-            const selectedHomeTeam = $(this).val();
-            const dataIndex = $(this).attr('data-index');
+        function selectHomeTeam(element) {
+            const selectedHomeTeam = $(element).val();
+            const dataIndex = $(element).attr('data-index');
+            console.log(dataIndex);
 
             if (selectedHomeTeam !== '') {
                 getAllTeams(selectedHomeTeam, dataIndex);
@@ -113,7 +114,7 @@
 
             const awayTeamContainer = $(`.away-teams[data-index="${dataIndex}"]`);
             awayTeamContainer.children('option').not('option:first').remove();
-        });
+        }
 
         btnSaveMatchResult.on('click', saveMatchResult)
 
@@ -127,10 +128,12 @@
             matchResultRow.attr('data-index', newIndex);
             matchResultRow.find('h3.match-order').text(newIndex);
             matchResultRow.find('.form-select').attr('data-index', newIndex);
-            matchResultRow.find('.team-scores').attr('data-index', newIndex);
+            matchResultRow.find('.team-scores').attr('data-index', newIndex).val(0);
 
             // append
             containerForm.append(matchResultRow);
+
+            getAllTeams(null, newIndex);
             showRemoveButton();
         }
 
@@ -249,15 +252,6 @@
                 })
             }
         }
-
-
-
-
-
-
-
-
-
 
     </script>
 @endpush
