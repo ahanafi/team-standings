@@ -30,7 +30,8 @@ class TeamStandingsDataTable extends DataTable
         return $model->newQuery()
             ->select('id', 'name', 'played', 'won', 'drawn', 'lost', 'goal_for', 'goal_against', 'points')
             ->orderBy('points', 'DESC')
-            ->orderBy('goal_for', 'DESC');
+            ->orderBy('goal_for', 'DESC')
+            ->orderBy('goal_against', 'ASC');
     }
 
     /**
