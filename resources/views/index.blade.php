@@ -1,5 +1,17 @@
 @extends('layouts.template')
 
+@push('style')
+    <style>
+        .img-card {
+            height: 180px;
+            width: auto;
+            object-position:center;
+            object-fit:cover;
+            overflow:hidden;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h1 class="display-4 fw-normal text-body-emphasis">Simple Team Standings</h1>
@@ -15,13 +27,9 @@
                     <h4 class="my-0 fw-normal">Teams</h4>
                 </div>
                 <div class="card-body">
-                    <h1 class="card-title pricing-card-title">$0<small class="text-body-secondary fw-light">/mo</small></h1>
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <li>10 users included</li>
-                        <li>2 GB of storage</li>
-                        <li>Email support</li>
-                        <li>Help center access</li>
-                    </ul>
+                    <div class="mb-3">
+                        <img class="img-fluid img-card" src="https://e0.365dm.com/18/01/1600x900/skysports-graphic-cover-badges-premier-league_4207507.jpg" alt="">
+                    </div>
                     <div class="d-flex flex-column gap-3">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#team-form-modal" class="w-100 btn btn-lg btn-outline-primary">Input a Team</button>
                         <a href="{{ route('teams.index') }}" class="w-100 btn btn-lg btn-primary">View Team Lists</a>
@@ -36,13 +44,9 @@
                     <h4 class="my-0 fw-normal">Matches</h4>
                 </div>
                 <div class="card-body">
-                    <h1 class="card-title pricing-card-title">$15<small class="text-body-secondary fw-light">/mo</small></h1>
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <li>20 users included</li>
-                        <li>10 GB of storage</li>
-                        <li>Priority email support</li>
-                        <li>Help center access</li>
-                    </ul>
+                    <div class="mb-3">
+                        <img class="img-fluid img-card" src="https://e0.365dm.com/20/10/2048x1152/skysports-premier-league-predictions_5147427.jpg?20201023114548" alt="">
+                    </div>
                     <div class="d-flex flex-column gap-3">
                         <button id="btn-input-single-match-result" type="button" class="w-100 btn btn-lg btn-outline-primary">Input Single Match Result</button>
                         <a href="{{ route('match-result.input-multiple-result') }}" class="w-100 btn btn-lg btn-primary">Input Multiple Match Result</a>
@@ -56,13 +60,9 @@
                     <h4 class="my-0 fw-normal">Team Standings</h4>
                 </div>
                 <div class="card-body">
-                    <h1 class="card-title pricing-card-title">$29<small class="text-body-secondary fw-light">/mo</small></h1>
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <li>30 users included</li>
-                        <li>15 GB of storage</li>
-                        <li>Phone and email support</li>
-                        <li>Help center access</li>
-                    </ul>
+                    <div class="mb-3">
+                        <img class="img-fluid img-card" src="https://e0.365dm.com/21/07/1600x900/skysports-premier-league-graphic_5458724.jpg?20210726090016" alt="">
+                    </div>
                     <a href="{{ route('teams.standings-table') }}" class="w-100 btn btn-lg btn-primary">View Team Standings</a>
                 </div>
             </div>
